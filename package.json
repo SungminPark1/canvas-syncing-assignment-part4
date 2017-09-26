@@ -1,0 +1,33 @@
+{
+  "name": "canvas-syncing-assignment-part4",
+  "version": "1.0.0",
+  "engines": {
+    "node": "8.4.0",
+    "npm": "5.3.0"
+  },
+  "description": "syncing-data-4",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ./src/server.js",
+    "pretest": "eslint ./src --fix",
+    "test": "echo \"Test Complete\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SungminPark1/canvas-syncing-assignment-part4.git"
+  },
+  "author": "Sungmin Park",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SungminPark1/canvas-syncing-assignment-part4/issues"
+  },
+  "homepage": "https://github.com/SungminPark1/canvas-syncing-assignment-part4#readme",
+  "dependencies": {
+    "socket.io": "^2.0.3"
+  },
+  "devDependencies": {
+    "eslint": "^4.6.1",
+    "eslint-config-airbnb": "^15.1.0",
+    "eslint-plugin-import": "^2.7.0"
+  }
+}

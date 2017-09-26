@@ -1,13 +1,101 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
+    <style>
+      body {
+        background-color: 'gray';
+      }
+    </style>
     <script src="https://npmcdn.com/babel-core@5.8.38/browser.min.js"></script>
-    <script type="text/babel" >
-        "use strict";
-    
-    </script>
-</head>
-<body>
+    <script src="/socket.io/socket.io.js"></script>
+    <script type="text/javascript" >
+/* eslint-disable */
+      "use strict";
+      
+      let socket;
+      let canvas, ctx;
+      let sendBufferCanvas, sendBufferCtx;
 
-</body>
+      const handleMessage = (data) => {
+        const image = new Image();
+
+        image.onload = () => {
+          ctx.save();
+          ctx.globalCompositeOperation = "source-over"; //this is default for canvas
+          ctx.drawImage(image, data.x, data.y, data.width, data.height);
+          ctx.restore();
+        };
+
+        image.src = data.imgData;
+
+        console.log(image);
+      }
+
+      const setup = () => {
+        socket.emit('join');
+
+        socket.on('update', handleMessage);
+
+        sendBufferCanvas = document.createElement('canvas');
+        sendBufferCanvas.height = 200;
+        sendBufferCanvas.width = 200;
+        sendBufferCtx = sendBufferCanvas.getContext("2d");
+
+        sendBufferCtx.fillStyle = `rgb(${Math.floor(Math.random()*256)}, ${Math.floor(Math.random()*256)}, ${Math.floor(Math.random()*256)})`;
+        sendBufferCtx.fillRect(Math.floor(Math.random()*151),Math.floor(Math.random()*151),50,50); //draw to hidden buffer
+        
+        const newData = {
+          id: `user${Math.floor((Math.random()*1000) + 1)}`,
+          x: Math.floor(Math.random()*301),
+          y: Math.floor(Math.random()*301),
+          height: 200,
+          width: 200,
+          imgData: sendBufferCanvas.toDataURL(), //get pixel data from canvas
+        };
+
+        // get other clients data from server
+        socket.on('initData', (data) => {
+          data.draws = {
+            ...data.draws,
+            [newData.id]: newData,
+          };
+          const keys = Object.keys(data.draws);
+
+          for(let i = 0; i< keys.length; i++){
+            const drawCall = data.draws[keys[i]];
+
+            const image = new Image();
+            image.src = drawCall.imgData;
+
+            image.onload = () => {
+              ctx.save();
+              ctx.globalCompositeOperation = "source-over"; //this is default for canvas
+              ctx.drawImage(image, drawCall.x, drawCall.y, drawCall.width, drawCall.height);
+              ctx.restore();
+            };
+
+            image.onload();
+          }
+        });
+
+        socket.emit("draw", newData);
+      };
+
+      const init = () => {
+        canvas = document.querySelector('canvas');
+        ctx = canvas.getContext('2d');
+        socket = io.connect();
+
+        canvas.setAttribute( 'width',  500);
+        canvas.setAttribute( 'height', 500);
+
+        setup();
+      }
+
+      window.onload = init;
+    </script>
+  </head>
+  <body>
+    <canvas></canvas>
+  </body>
 </html>
